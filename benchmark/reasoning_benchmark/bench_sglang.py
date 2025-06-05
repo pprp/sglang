@@ -29,7 +29,19 @@ def reasoning_gen(s, question: str):
 
 
 def convert_dataset(path: str, question_key: str, answer_key: str, num_tries: int):
-    raw_dataset = load_dataset(path)
+    if '25' in path.lower():
+        raw_dataset = load_dataset(path, "AIME2025-I")
+        questions = []
+        answers = []
+        for data in raw_dataset["test"]:
+            question = data[question_key]
+            answer = data[answer_key]
+            for _ in range(num_tries):
+                questions.append({"question": question})
+                answers.append({"answer": answer})
+        return questions, answers
+    else:
+        raw_dataset = load_dataset(path)
     questions = []
     answers = []
     for data in raw_dataset["train"]:

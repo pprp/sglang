@@ -11,7 +11,7 @@ python -m sglang.launch_server --model-path meta-llama/Llama-2-7b-chat-hf --port
 ```
 
 ```
-python3 bench_sglang.py --nsub 10
+python3 bench_sglang.py --nsub 60
 ```
 
 ```

@@ -386,6 +386,6 @@ def select_experts(
             renormalize=renormalize,
         )
 
-    get_global_expert_distribution_recorder().on_select_experts(topk_ids=topk_ids)
+    get_global_expert_distribution_recorder().on_select_experts(topk_ids=topk_ids, logits=router_logits)
 
     return topk_weights, topk_ids

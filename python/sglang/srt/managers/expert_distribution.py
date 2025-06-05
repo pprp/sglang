@@ -319,6 +319,15 @@ class _DetailSinglePassGatherer(_SinglePassGatherer):
     ):
         super().__init__(expert_location_metadata, rank)
         self._metadata: Optional[Dict[str, Any]] = None
+        self._full_logits_of_layer = torch.zeros(
+            (
+                expert_location_metadata.num_layers,
+                server_args.chunked_prefill_size * 8,
+                expert_location_metadata.num_physical_experts,
+            ),
+            dtype=torch.float32,
+            device=server_args.device,
+        )
         self._topk_ids_of_layer = torch.zeros(
             (
                 expert_location_metadata.num_layers,
@@ -346,8 +355,9 @@ class _DetailSinglePassGatherer(_SinglePassGatherer):
             forward_mode=forward_batch.forward_mode.value,
         )
 
-    def on_select_experts(self, layer_idx: int, topk_ids: torch.Tensor):
+    def on_select_experts(self, layer_idx: int, topk_ids: torch.Tensor, logits: torch.Tensor):
         self._topk_ids_of_layer[layer_idx, : topk_ids.shape[0], :] = topk_ids
+        self._full_logits_of_layer[layer_idx, : logits.shape[0], :] = logits
 
     def on_deepep_dispatch_normal(
         self,
@@ -376,6 +386,7 @@ class _DetailSinglePassGatherer(_SinglePassGatherer):
         return dict(
             **self._metadata,
             topk_ids_of_layer=self._topk_ids_of_layer[:, :num_tokens, :].clone().cpu(),
+            full_logits_of_layer=self._full_logits_of_layer[:, :num_tokens, :].clone().cpu(),
             misc_objects=self._misc_objects,
         )
 

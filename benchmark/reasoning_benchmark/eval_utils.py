@@ -2,7 +2,7 @@
 
 from math import isclose
 
-import regex
+import re as regex
 from sympy import N, simplify
 from sympy.parsing.latex import parse_latex
 from sympy.parsing.sympy_parser import parse_expr
